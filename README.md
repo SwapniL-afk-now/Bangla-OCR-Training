@@ -38,10 +38,21 @@ accelerate config
 
 ## 📈 Training
 
+### Standard (Interactive)
 To start training with multi-GPU support:
 ```bash
 accelerate launch train.py
 ```
+
+### Kaggle / Notebooks (Non-interactive)
+On Kaggle with **Dual T4 GPUs**, use the following command to ensure all internal configurations (like mixed precision and accumulation steps) are respected:
+
+```bash
+!accelerate launch --multi_gpu --num_processes=2 --mixed_precision=fp16 train.py
+```
+
+> [!NOTE]
+> The script automatically reads `gradient_accumulation_steps` and `mixed_precision` from `src/config.py`. The launch flags ensure the environment is correctly initialized for two GPUs.
 
 Settings can be adjusted in `src/config.py`.
 
