@@ -40,6 +40,7 @@ Thumbs.db
 # Project Specific
 /kaggle/
 /temp/
+research/
 
 # Original script (excluded by request)
 bangla_ocr_train.py
