@@ -1,0 +1,15 @@
+datasets
+bitsandbytes
+torch
+transformers
+trl
+accelerate
+evaluate
+jiwer
+Levenshtein
+kornia
+pillow
+numpy
+tqdm
+safetensors
+scipy
