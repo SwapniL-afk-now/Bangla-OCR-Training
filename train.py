@@ -16,6 +16,7 @@ from src.losses import CombinedLoss
 from src.utils.confusion import CharacterConfusionMatrix
 from src.utils.data_utils import scan_dataset_dimensions
 from src.utils.checkpoints import load_checkpoint
+from src.utils.schedulers import DampenedCosineScheduler
 from src.trainer import Trainer
 
 def parse_args():
@@ -36,6 +37,8 @@ def parse_args():
     parser.add_argument("--warmup_steps", type=int, default=config.warmup_steps)
     parser.add_argument("--weight_decay", type=float, default=config.weight_decay)
     parser.add_argument("--max_grad_norm", type=float, default=config.max_grad_norm)
+    parser.add_argument("--min_lr_ratio", type=float, default=config.min_lr_ratio)
+    parser.add_argument("--dampen_factor", type=float, default=config.dampen_factor)
     parser.add_argument("--bf16", action="store_true", default=config.bf16)
     parser.add_argument("--fp16", action="store_true", default=config.fp16)
     
@@ -130,7 +133,13 @@ def main():
     optimizer = bnb.optim.AdamW8bit(model.parameters(), lr=config.learning_rate, weight_decay=config.weight_decay)
     
     max_steps = config.max_steps if config.max_steps > 0 else int(config.num_train_epochs * len(train_dataloader))
-    lr_scheduler = get_scheduler("cosine", optimizer=optimizer, num_warmup_steps=config.warmup_steps, num_training_steps=max_steps)
+    lr_scheduler = DampenedCosineScheduler(
+        optimizer=optimizer, 
+        warmup_steps=config.warmup_steps, 
+        total_steps=max_steps,
+        min_lr_ratio=config.min_lr_ratio,
+        dampen_factor=config.dampen_factor
+    )
     
     loss_fn = CombinedLoss(processor=processor, focal_alpha=config.focal_alpha, focal_gamma=config.focal_gamma, label_smoothing=config.label_smoothing)
     
