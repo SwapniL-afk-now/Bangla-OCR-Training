@@ -32,10 +32,31 @@ def parse_args():
     parser.add_argument("--gradient_accumulation_steps", type=int, default=config.gradient_accumulation_steps)
     parser.add_argument("--learning_rate", type=float, default=config.learning_rate)
     parser.add_argument("--num_train_epochs", type=int, default=config.num_train_epochs)
+    parser.add_argument("--max_steps", type=int, default=config.max_steps)
     parser.add_argument("--warmup_steps", type=int, default=config.warmup_steps)
     parser.add_argument("--weight_decay", type=float, default=config.weight_decay)
+    parser.add_argument("--max_grad_norm", type=float, default=config.max_grad_norm)
     parser.add_argument("--bf16", action="store_true", default=config.bf16)
     parser.add_argument("--fp16", action="store_true", default=config.fp16)
+    
+    # Dataset Config
+    parser.add_argument("--dataset_name", type=str, default=config.dataset_name)
+    parser.add_argument("--dataset_classes", type=str, default=",".join(config.dataset_classes), help="Comma-separated classes")
+    parser.add_argument("--samples_per_class", type=str, default=str(config.samples_per_class))
+    parser.add_argument("--scan_dataset_dimensions", type=bool, default=config.scan_dataset_dimensions)
+    parser.add_argument("--dimension_scan_samples", type=int, default=config.dimension_scan_samples)
+    parser.add_argument("--padding_buffer", type=float, default=config.padding_buffer)
+    
+    # Loss Config
+    parser.add_argument("--focal_alpha", type=float, default=config.focal_alpha)
+    parser.add_argument("--focal_gamma", type=float, default=config.focal_gamma)
+    parser.add_argument("--label_smoothing", type=float, default=config.label_smoothing)
+    
+    # Logging & Eval
+    parser.add_argument("--logging_steps", type=int, default=config.logging_steps)
+    parser.add_argument("--eval_steps", type=int, default=config.eval_steps)
+    parser.add_argument("--save_steps", type=int, default=config.save_steps)
+    parser.add_argument("--compute_train_metrics", type=bool, default=config.compute_train_metrics)
     
     # IO
     parser.add_argument("--output_dir", type=str, default=config.output_dir)
@@ -48,7 +69,15 @@ def main():
     
     # Update config with CLI arguments
     for key, value in vars(args).items():
-        setattr(config, key, value)
+        if key == "dataset_classes" and isinstance(value, str):
+            setattr(config, key, [c.strip() for c in value.split(",")])
+        elif key == "samples_per_class" and value != 'all':
+            try:
+                setattr(config, key, int(value))
+            except:
+                setattr(config, key, value)
+        else:
+            setattr(config, key, value)
     
     # Initialize Accelerator
     accelerator = Accelerator(
