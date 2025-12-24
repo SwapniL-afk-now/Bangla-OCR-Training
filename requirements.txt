@@ -6,7 +6,6 @@ trl
 accelerate
 evaluate
 jiwer
-Levenshtein
 kornia
 pillow
 numpy

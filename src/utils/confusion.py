@@ -8,30 +8,18 @@ class CharacterConfusionMatrix:
         self.max_size = max_size
     
     def update(self, predictions: List[str], references: List[str]):
-        import Levenshtein
         for pred, ref in zip(predictions, references):
             pred = pred.strip()
             ref = ref.strip()
             
-            # Use Levenshtein to get precise edits
-            ops = Levenshtein.editops(ref, pred)
-            
-            for op, ref_idx, pred_idx in ops:
-                if op == 'replace':
-                    # Character substituted
-                    true_char = ref[ref_idx]
-                    pred_char = pred[pred_idx]
-                    self.confusion_counts[true_char][pred_char] += 1
-                elif op == 'delete':
-                    # Character missing in prediction
-                    true_char = ref[ref_idx]
-                    self.confusion_counts[true_char]['<MISSING>'] += 1
-                elif op == 'insert':
-                    # Extra character in prediction
-                    pred_char = pred[pred_idx]
-                    self.confusion_counts['<EXTRA>'][pred_char] += 1
+            max_len = max(len(pred), len(ref))
+            for i in range(max_len):
+                ref_char = ref[i] if i < len(ref) else '<EOS>'
+                pred_char = pred[i] if i < len(pred) else '<EOS>'
                 
-                self.total_errors += 1
+                if ref_char != pred_char:
+                    self.confusion_counts[ref_char][pred_char] += 1
+                    self.total_errors += 1
     
     def get_top_confusions(self, top_k=10):
         all_confusions = []
@@ -45,10 +33,6 @@ class CharacterConfusionMatrix:
     def get_problematic_chars(self, threshold=10):
         problematic = {}
         for true_char, pred_dict in self.confusion_counts.items():
-            # Skip internal tracking tags
-            if true_char in ['<EXTRA>', '<MISSING>']:
-                continue
-                
             total_errors_for_char = sum(pred_dict.values())
             if total_errors_for_char >= threshold:
                 problematic[true_char] = total_errors_for_char

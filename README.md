@@ -45,25 +45,21 @@ accelerate launch train.py
 ```
 
 ### Kaggle / Notebooks (Non-interactive)
-On Kaggle with **Dual T4 GPUs**, use the following comprehensive command to pass all hyperparameters (including **Rank** and **Lora Alpha**) directly to the script:
+On Kaggle with **Dual T4 GPUs**, the most reliable way to use both GPUs with `device_map="auto"` is running a single process. Run this command to pass all hyperparameters (including **Rank** and **Lora Alpha**) directly:
 
 ```bash
-!accelerate launch \
-    --multi_gpu \
-    --num_processes=2 \
-    --mixed_precision=fp16 \
-    --gradient_accumulation_steps=6 \
-    train.py \
+!python train.py \
     --lora_r 512 \
     --lora_alpha 1024 \
     --batch_size 16 \
     --learning_rate 1e-4 \
     --num_train_epochs 3 \
+    --fp16 \
     --output_dir "./outputs/qwen2vl-bangla-ocr"
 ```
 
 > [!TIP]
-> This command explicitly sets hardware, precision, and performance hyperparameters. You can override any setting defined in `src/config.py` by adding more flags here.
+> Using `python train.py` (instead of `accelerate launch`) allows the model's internal `device_map="auto"` to intelligently split layers across GPUs without process contention.
 
 Settings can be adjusted in `src/config.py`.
 
