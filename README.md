@@ -15,9 +15,9 @@ A modular, multi-GPU optimized training pipeline for handwritten Bangla OCR usin
 ├── src/
 │   ├── data/          # Dataset, Collator, Augmentation
 │   ├── models/        # Model factory
-│   ├── utils/         # Metrics, Checkpoints, Confusion Matrix
+│   ├── losses/        # Modularized Focal and Confusion losses
+│   ├── utils/         # Metrics, Checkpoints, Schedulers, Confusion
 │   ├── config.py      # Training configuration
-│   ├── losses.py      # Focal and Confusion losses
 │   └── trainer.py     # Core training logic
 ├── train.py           # Main entry point
 ├── requirements.txt   # Dependencies
@@ -31,21 +31,9 @@ A modular, multi-GPU optimized training pipeline for handwritten Bangla OCR usin
 pip install -r requirements.txt
 ```
 
-2. **Configure Accelerate**:
-```bash
-accelerate config
-```
-
 ## 📈 Training
 
-### Standard (Interactive)
-To start training with multi-GPU support:
-```bash
-accelerate launch train.py
-```
-
-### Kaggle / Notebooks (Non-interactive)
-On Kaggle with **Dual T4 GPUs**, use this comprehensive command to pass all hyperparameters directly. This is the recommended way to use both GPUs with `device_map="auto"` in a single-process environment:
+Run this comprehensive command to start training. This is the recommended way to use both GPUs with `device_map="auto"` on Kaggle/Dual T4 environments:
 
 ```bash
 !python train.py \
