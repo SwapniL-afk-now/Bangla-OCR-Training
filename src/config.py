@@ -21,7 +21,7 @@ class Config:
     warmup_steps = 100
     weight_decay = 0.01
     max_grad_norm = 1.0
-    min_lr_ratio = 0.1
+    min_lr = 1e-6
     dampen_factor = 1.0
     
     # Dataset

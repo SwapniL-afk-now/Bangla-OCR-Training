@@ -37,7 +37,7 @@ def parse_args():
     parser.add_argument("--warmup_steps", type=int, default=config.warmup_steps)
     parser.add_argument("--weight_decay", type=float, default=config.weight_decay)
     parser.add_argument("--max_grad_norm", type=float, default=config.max_grad_norm)
-    parser.add_argument("--min_lr_ratio", type=float, default=config.min_lr_ratio)
+    parser.add_argument("--min_lr", type=float, default=config.min_lr)
     parser.add_argument("--dampen_factor", type=float, default=config.dampen_factor)
     parser.add_argument("--bf16", action="store_true", default=config.bf16)
     parser.add_argument("--fp16", action="store_true", default=config.fp16)
@@ -137,7 +137,7 @@ def main():
         optimizer=optimizer, 
         warmup_steps=config.warmup_steps, 
         total_steps=max_steps,
-        min_lr_ratio=config.min_lr_ratio,
+        min_lr=config.min_lr,
         dampen_factor=config.dampen_factor
     )
     
