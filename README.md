@@ -45,14 +45,19 @@ accelerate launch train.py
 ```
 
 ### Kaggle / Notebooks (Non-interactive)
-On Kaggle with **Dual T4 GPUs**, use the following command to ensure all internal configurations (like mixed precision and accumulation steps) are respected:
+On Kaggle with **Dual T4 GPUs**, use the following comprehensive command to ensure all training configurations are explicitly set:
 
 ```bash
-!accelerate launch --multi_gpu --num_processes=2 --mixed_precision=fp16 train.py
+!accelerate launch \
+    --multi_gpu \
+    --num_processes=2 \
+    --mixed_precision=fp16 \
+    --gradient_accumulation_steps=6 \
+    train.py
 ```
 
-> [!NOTE]
-> The script automatically reads `gradient_accumulation_steps` and `mixed_precision` from `src/config.py`. The launch flags ensure the environment is correctly initialized for two GPUs.
+> [!TIP]
+> This command explicitly sets the hardware and precision configuration. The hyperparameters like `learning_rate` and `num_train_epochs` remain manageable via `src/config.py`.
 
 Settings can be adjusted in `src/config.py`.
 
