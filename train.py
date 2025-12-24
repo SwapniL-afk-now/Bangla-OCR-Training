@@ -6,6 +6,7 @@ from accelerate import Accelerator
 import bitsandbytes as bnb
 from transformers import get_scheduler
 
+import argparse
 from src.config import config
 from src.data.dataset import BanglaOCRDataset
 from src.data.collator import OptimizedOCRDataCollator
@@ -17,10 +18,41 @@ from src.utils.data_utils import scan_dataset_dimensions
 from src.utils.checkpoints import load_checkpoint
 from src.trainer import Trainer
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Train Bangla OCR Model")
+    
+    # Model Config
+    parser.add_argument("--model_name", type=str, default=config.model_name)
+    parser.add_argument("--lora_r", type=int, default=config.lora_r)
+    parser.add_argument("--lora_alpha", type=int, default=config.lora_alpha)
+    parser.add_argument("--lora_dropout", type=float, default=config.lora_dropout)
+    
+    # Training Config
+    parser.add_argument("--batch_size", type=int, default=config.batch_size)
+    parser.add_argument("--gradient_accumulation_steps", type=int, default=config.gradient_accumulation_steps)
+    parser.add_argument("--learning_rate", type=float, default=config.learning_rate)
+    parser.add_argument("--num_train_epochs", type=int, default=config.num_train_epochs)
+    parser.add_argument("--warmup_steps", type=int, default=config.warmup_steps)
+    parser.add_argument("--weight_decay", type=float, default=config.weight_decay)
+    parser.add_argument("--bf16", action="store_true", default=config.bf16)
+    parser.add_argument("--fp16", action="store_true", default=config.fp16)
+    
+    # IO
+    parser.add_argument("--output_dir", type=str, default=config.output_dir)
+    parser.add_argument("--resume_from_checkpoint", type=str, default=config.resume_from_checkpoint)
+    
+    return parser.parse_args()
+
 def main():
+    args = parse_args()
+    
+    # Update config with CLI arguments
+    for key, value in vars(args).items():
+        setattr(config, key, value)
+    
     # Initialize Accelerator
     accelerator = Accelerator(
-        mixed_precision="fp16" if config.fp16 else "no",
+        mixed_precision="bf16" if config.bf16 else ("fp16" if config.fp16 else "no"),
         gradient_accumulation_steps=config.gradient_accumulation_steps,
     )
     

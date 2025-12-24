@@ -45,7 +45,7 @@ accelerate launch train.py
 ```
 
 ### Kaggle / Notebooks (Non-interactive)
-On Kaggle with **Dual T4 GPUs**, use the following comprehensive command to ensure all training configurations are explicitly set:
+On Kaggle with **Dual T4 GPUs**, use the following comprehensive command to pass all hyperparameters (including **Rank** and **Lora Alpha**) directly to the script:
 
 ```bash
 !accelerate launch \
@@ -53,11 +53,17 @@ On Kaggle with **Dual T4 GPUs**, use the following comprehensive command to ensu
     --num_processes=2 \
     --mixed_precision=fp16 \
     --gradient_accumulation_steps=6 \
-    train.py
+    train.py \
+    --lora_r 512 \
+    --lora_alpha 1024 \
+    --batch_size 16 \
+    --learning_rate 1e-4 \
+    --num_train_epochs 3 \
+    --output_dir "./outputs/qwen2vl-bangla-ocr"
 ```
 
 > [!TIP]
-> This command explicitly sets the hardware and precision configuration. The hyperparameters like `learning_rate` and `num_train_epochs` remain manageable via `src/config.py`.
+> This command explicitly sets hardware, precision, and performance hyperparameters. You can override any setting defined in `src/config.py` by adding more flags here.
 
 Settings can be adjusted in `src/config.py`.
 
